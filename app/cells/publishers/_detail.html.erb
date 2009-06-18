@@ -1,0 +1,29 @@
+<p style="color:red;"><%= msg_emit %></p>
+<% unless (@editing && @record.new_record?) %>
+	<%= link_to_event('New record', {:type => :editClick, :id => 0}) %>
+<% end %>
+<% unless @record.new_record? %>
+	<%= link_to_event('Edit', {:type => :editClick, :id => @record.id}) %>
+<% end %>
+<%= link_to_event('Select', {:type => :selectClick}) %>
+<% if @editing %>
+	<%= form_to_event :state => :_update %>
+		<p>Name:<br />
+		<%= text_field_tag 'name', @record.name, :size => 25 %>
+		</p>
+		<p><%= submit_tag @record.new_record? ? "Add publisher" : "Update publisher" %></p>
+	</form>
+<% else %>
+	<% if @record.new_record? %>
+		<p>No publisher selected.</p>
+		<p>Please select something from the list.</p>
+	<% else %>
+		<table border="1">
+			<tr>
+				<td>Name</td>
+				<td><%= @record.name %>
+			</tr>
+		</table>
+	<% end %>
+<% end %>
+<%= javascript_tag js_emit %>

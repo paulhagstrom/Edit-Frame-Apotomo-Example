@@ -1,0 +1,18 @@
+<!-- It's bad form to have delete be a clickable link, fix that someday -->
+<table>
+	<tr>
+		<th>Name</th>
+		<th>Edit</th>
+		<th>Select</th>
+		<th>Delete</th>
+	</tr>
+	<% for record in @records do %>
+	<tr>
+		<td><%=h record.name %></td>
+		<td><%= link_to_event("Edit", {:type => :editClick, :id => record.id}) %></td>
+		<td><%= link_to_event("Select", {:type => :chosenClick, :publisher_id => record.id}) %></td>
+		<td><%= link_to_event("Delete", {:type => :delClick, :id => record.id}) %></td>
+	</tr>
+	<% end %>
+</table>
+<%= javascript_tag js_emit %>

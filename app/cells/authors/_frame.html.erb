@@ -1,0 +1,31 @@
+<table border="1" width="100%">
+	<tr>
+		<td valign="top">
+			<div id = "div_author_detail" style="display:block;">
+				<%= @rendered_children['author_detail'] %>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			<div id = "div_author_list_panels" style="display:none;">
+				<table width="100%">
+					<tr>
+						<td>
+							<div id = "div_author_filter" style="display:block;">
+								<%= @rendered_children['author_filter'] %>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td valign="top">
+							<div id = "div_author_list" style="display:block;">
+								<%= @rendered_children['author_list'] %>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</td>
+	</tr>
+</table>

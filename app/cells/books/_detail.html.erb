@@ -1,0 +1,40 @@
+<p style="color:red;"><%= msg_emit %></p>
+<% unless (@editing && @record.new_record?) %>
+	<%= link_to_event('New record', {:type => :newClick, :id => 0}) %>
+<% end %>
+<%= link_to_event('Dismiss', {:type => :dismissPanel}) %>
+<% if @editing %>
+	<%= form_to_event :state => :_update %>
+		<p>Title:<br />
+		<%= text_field_tag 'title', @record.title, :size => 25 %>
+		</p>
+		<p>Author: <%= @record.author.name rescue '(Not set)' %>
+		</p>
+		<%= hidden_field_tag 'author_id', @record.author_id %>
+		<p>Publisher: <%= @record.publisher.name rescue '(Not set)' %>
+		</p>
+		<%= hidden_field_tag 'publisher_id', @record.publisher_id %>
+		<p><%= submit_tag @record.new_record? ? "Add book" : "Update book" %></p>
+	</form>
+<% else %>
+	<% if @record.new_record? %>
+		<p>No book selected.</p>
+		<p>Please select something from the list.</p>
+	<% else %>
+		<table border="1">
+			<tr>
+				<td>Title</td>
+				<td><%= @record.title rescue '(Not set)' %>
+			</tr>
+			<tr>
+				<td>Author</td>
+				<td><%= @record.author.name rescue '(Not set)' %>
+			</tr>
+			<tr>
+				<td>Publisher</td>
+				<td><%= @record.publisher.name %>
+			</tr>
+		</table>
+	<% end %>
+<% end %>
+<%= javascript_tag js_emit %>
