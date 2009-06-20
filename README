@@ -6,3 +6,4 @@ git submodule init
 git submodule update
 script/server
 
+Relies on Apotomo and Cells
