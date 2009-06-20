@@ -4,9 +4,10 @@ git clone git://github.com/paulhagstrom/edit_frame_apotomo_example.git
 cd edit_frame_apotomo_example
 git submodule init
 git submodule update
+rake db:migrate
 script/server
 
-Relies on Apotomo and Cells
+Relies on Apotomo and Cells.  Uses a sqlite3 database, so it might be Mac-centric.
 
 At some point I may break this out into a plugin of its own, since it is fairly general already.
 The bulk of the code is in app/cells/edit_frame_cell.rb and lib/edit_frame/edit_frame_widget_tree.rb
