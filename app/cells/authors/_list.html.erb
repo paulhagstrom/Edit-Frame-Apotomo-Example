@@ -10,7 +10,7 @@
 	<tr>
 		<td><%=h record.name %></td>
 		<td><%= link_to_event("Edit", {:type => :editClick, :id => record.id}) %></td>
-		<td><%= link_to_event("Select", {:type => :chosenClick, :author_id => record.id}) %></td>
+		<td><%= link_to_event("Select", {:type => :selectClick, :id => record.id}) %></td>
 		<td><%= link_to_event("Delete", {:type => :delClick, :id => record.id}) %></td>
 	</tr>
 	<% end %>

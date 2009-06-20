@@ -6,9 +6,7 @@ class BooksController < ApplicationController
   
   def index
     ApplicationWidgetTree.new.draw([])
-    @content = render_widget('book_frame')
-    # @content = render_widget('author_frame')
-    # @content = render_widget('publisher_frame')
+    @content = render_widget('book')
   end
   
   def populate
@@ -32,26 +30,5 @@ class BooksController < ApplicationController
     Book.new(:title => 'Movement in Language', :author => nr, :publisher => oup).save
     redirect_to :action => 'index'
   end
-
-  # Patch. This requirement of not being a String is no good.
-  # def render_page_update_for(processed_handlers)
-  #   render :update do |page|
-  #     
-  #     processed_handlers.each do |item|
-  #     (handler, content) = item
-  #       ### DISCUSS: i don't like that switch, but moving this behaviour into the
-  #       ###   actual handler is too complicated, as we just need replace and exec.
-  #       #content = handler.content
-  #       next unless content ### DISCUSS: move this decision into EventHandler#process_event_for(page).
-  # 
-  #       if handler.kind_of? Apotomo::InvokeEventHandler
-  #         page.replace handler.widget_id, content
-  #       else
-  #         page << content
-  #       end
-  #     end
-  #     
-  #   end 
-  # end
 
 end

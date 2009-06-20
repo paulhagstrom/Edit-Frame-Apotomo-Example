@@ -1,9 +1,9 @@
-class PublishersCell < CommonCell
+class PublishersCell < EditFrameCell
     
   def transition_map
     super.merge!({
-      :_chosen => [:_list],
-      :_list => super[:_list] + [:_chosen]
+      :_change => [:_detail],
+      :_detail => super[:_detail] + [:_change],
     })    
   end
 
@@ -13,26 +13,23 @@ class PublishersCell < CommonCell
     })
   end
 
-  # def list
-  #   @conditions = param(:available_filters)[param(:current_filter)][:conditions]
-  #   @records = resource_model.find(:all, #:include => [:author, :publisher],
-  #     :conditions => param(:available_filters)[param(:current_filter)][:conditions])
-  #   nil
-  # end
+  def resources_default_order
+    'publishers.name'
+  end
 
   def attributes_to_update
     [:name]
   end
 
   def hud_panels
-    {:list => ['div_publisher_list_panels', false]}
+    {
+      :list => ['div_publisher_list_panels', true],
+      :detail => ['div_publisher_detail', false],
+    }
   end
 
-  def _chosen
-    detail = parent.parent.root.find_by_id('book_detail')
-    detail.record[:publisher_id] = param(:publisher_id)
-    detail.trigger(:viewChanged)
-    jump_to_state :_list
+  def _parent_changed
+    super('publisher_filter')
   end
-
+  
 end

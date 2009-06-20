@@ -1,14 +1,21 @@
-<table border="1" width="100%">
+<table width="100%">
 	<tr>
 		<td valign="top">
-			<div id = "div_publisher_detail" style="display:block;">
+			<div id = "div_publisher_message" style="display:block;">
+				<%= @rendered_children['publisher_message'] %>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			<div id = "div_publisher_detail" style="display:none;">
 				<%= @rendered_children['publisher_detail'] %>
 			</div>
 		</td>
 	</tr>
 	<tr>
 		<td valign="top">
-			<div id = "div_publisher_list_panels" style="display:none;">
+			<div id = "div_publisher_list_panels" style="display:block;">
 				<table width="100%">
 					<tr>
 						<td>

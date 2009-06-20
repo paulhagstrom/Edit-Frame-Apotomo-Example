@@ -11,8 +11,8 @@
 	<% for record in @records do %>
 	<tr>
 		<td><%=h record.title %></td>
-		<td><%=h record.author.name %></td>
-		<td><%=h record.publisher.name %></td>
+		<td><%=h record.author.name rescue '(Not set)' %></td>
+		<td><%=h record.publisher.name rescue '(Not set)' %></td>
 		<td><%= link_to_event("Edit", {:type => :editClick, :id => record.id}) %></td>
 		<td><%= link_to_event("Show", {:type => :showClick, :id => record.id}) %></td>
 		<td><%= link_to_event("Delete", {:type => :delClick, :id => record.id}) %></td>

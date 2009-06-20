@@ -1,8 +1,13 @@
-<table border="1" width="100%">
+<table width="100%">
+	<tr>
+		<td valign="top">
+			<%= @rendered_children['book_message'] %>
+		</td>
+	</tr>
 	<tr>
 		<td valign="top">
 			<div id = "div_book_detail_panels" style="display:none;">			
-				<table border="1" width="100%">
+				<table width="100%">
 					<tr>
 						<td valign="top" width="40%">
 							<div id = "div_book_detail" style="display:block;">
@@ -11,12 +16,12 @@
 						</td>
 						<td valign="top" width="30%">
 							<div id = "div_author_frame" style="display:block;">
-								<%= @rendered_children['author_frame'] %>
+								<%= @rendered_children['author'] %>
 							</div>
 						</td>
 						<td valign="top" width="30%">
 							<div id = "div_publisher_frame" style="display:block;">
-								<%= @rendered_children['publisher_frame'] %>
+								<%= @rendered_children['publisher'] %>
 							</div>
 						</td>
 					</tr>

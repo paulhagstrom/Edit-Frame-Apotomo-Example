@@ -1,0 +1,18 @@
+<table width="100%">
+	<tr>
+		<td>
+			<table>
+				<tr>
+				<% @filters_available.each do |filtkey,filt| 
+					filter_name = (@current_filter == filtkey) ?( '>>' + filt[:name] + '<<') : filt[:name] %>
+					<td><%= link_to_event(filter_name, {:type => :filterClick, :new_filter => filtkey}) %></td>
+				<% end %>
+				</tr>
+			</table>
+		<td>
+		<td>
+			<%= link_to_event('New record', :type => :newClick) %>
+		</td>
+	</tr>
+</table>
+<%= javascript_tag js_emit %>
