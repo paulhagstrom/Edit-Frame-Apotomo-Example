@@ -1,14 +1,7 @@
 class AuthorsCell < EditFrameCell
   
-  def transition_map
-    super.merge!({
-      :_change => [:_detail],
-      :_detail => super[:_detail] + [:_change],
-    })    
-  end
-
   def filters_available
-    super.merge!({
+    super.merge({
       'ns' => {:name => 'Authors after H', :conditions => ["name > 'H'"]}
     })
   end
@@ -22,14 +15,11 @@ class AuthorsCell < EditFrameCell
   end
 
   def hud_panels
-    {
+    super.merge({
       :list => ['div_author_list_panels', true],
       :detail => ['div_author_detail', false],
-    }
-  end
-
-  def _parent_changed
-    super('author_filter')
+      :message => ['div_author_message', false],
+    })
   end
     
 end

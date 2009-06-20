@@ -3,8 +3,10 @@
 		<td>
 			<table>
 				<tr>
-				<% @filters_available.each do |filtkey,filt| 
-					filter_name = (@current_filter == filtkey) ?( '>>' + filt[:name] + '<<') : filt[:name] %>
+				<% @filters.each do |filtkey,filt| 
+					filter_name = (@filter == filtkey) ? 
+					( '<span style="background-color:yellow;">&nbsp;' + filt[:name] + '&nbsp;</span>') :
+					'&nbsp;' + filt[:name] + '&nbsp;' %>
 					<td><%= link_to_event(filter_name, {:type => :filterClick, :new_filter => filtkey}) %></td>
 				<% end %>
 				</tr>

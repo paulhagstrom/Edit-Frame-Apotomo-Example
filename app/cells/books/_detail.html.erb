@@ -13,11 +13,11 @@
 				<td>Publisher:</td>
 				<td><%= @rendered_children['publisher_selected'] %></td>
 			</tr>
-		</table>	
-		<p><%= submit_tag (@record.new_record? ? "Add book" : "Save changes") %></p>
-	</form>
-	<%= form_to_event :state => :_detail_dismiss %>
-		<%= submit_tag "Cancel" %></p>
+			<tr>
+				<td><%= submit_tag @record.new_record? ? "Add book" : "Update book" %></td>
+				<td><%= link_to_event('Cancel', :type => :dismissPanel ) %></td>
+			</tr>
+		</table>
 	</form>
 <% else %>
 	<% if @record.new_record? %>
@@ -39,5 +39,4 @@
 		</table>
 	<% end %>
 <% end %>
-<p style="color:red;"><%= msg_emit %></p>
 <%= javascript_tag js_emit %>

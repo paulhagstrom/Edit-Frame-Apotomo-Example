@@ -1,11 +1,6 @@
 <table width="100%">
 	<tr>
 		<td valign="top">
-			<%= @rendered_children['book_message'] %>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top">
 			<div id = "div_book_detail_panels" style="display:none;">			
 				<table width="100%">
 					<tr>
@@ -26,6 +21,13 @@
 						</td>
 					</tr>
 				</table>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			<div id = "div_book_message" style="display:none;">
+				<%= @rendered_children['book_message'] %>
 			</div>
 		</td>
 	</tr>

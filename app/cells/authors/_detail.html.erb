@@ -1,16 +1,18 @@
 <% if @editing %>
 	<%= form_to_event :state => :_update %>
-		<p>Name:<br />
-		<%= text_field_tag 'name', @record.name, :size => 25 %>
-		</p>
-		<p><%= submit_tag @record.new_record? ? "Add author" : "Update author" %></p>
-	</form>
-	<%= form_to_event :state => :_detail_dismiss %>
-		<%= submit_tag "Cancel" %></p>
+		<table>
+			<tr>
+				<td>Name:</td>
+				<td><%= text_field_tag 'name', @record.name, :size => 25 %></td>
+			</tr>
+			<tr>
+				<td><%= submit_tag @record.new_record? ? "Add author" : "Update author" %></td>
+				<td><%= link_to_event('Cancel', :type => :dismissPanel ) %></td>
+			</tr>
+		</table>
 	</form>
 <% else %>
 	<p>Author: <%= @record.new_record? ? 'None selected' : @record.name %>
-		<%= link_to_event('(Edit)', {:type => :editClick, :id => @record.id}) %></p>
+		<%= link_to_event('(Edit)', {:type => :editClick, :id => @record.id, :from_show => 'y'}) %></p>
 <% end %>
-<p style="color:red;"><%= msg_emit %></p>
 <%= javascript_tag js_emit %>

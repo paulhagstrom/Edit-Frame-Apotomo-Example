@@ -1,24 +1,16 @@
 class EditFrameCell < Apotomo::StatefulWidget
   include Apotomo::EventAware
-  helper_method :js_emit, :msg_emit
-  attr_accessor :record, :selected
+  helper_method :js_emit
+  attr_accessor :record, :editing_mode, :filters, :filter, :hud_state, :message, :selected_id
+    
+  # If this widget has another of this type of widget in its detail panel, some things can be dealt with
+  # automatically if they are listed here.  Format: {'author' => :author_id, 'publisher' => :publisher_id}
+  # TODO: Maybe I can get it to actually use the models and associations, that would be better than hardwiring it.
+  def child_panels
+    {}
+  end
 
-  # TODO: I think basically what's left is to clean this up, get rid of comments and obsolescences.
-  # TODO: Also, I should maybe try to make it prettier.
-  # But I think it is essentially ready to be embedded in caslx so I can see what else I need to be able to do.
-  # TODO: Actually, I should expire the messages.  Perhaps I can make them fade.  But I see when I bring back up
-  # the edit HUD that the previous message is still there.  The messages can maybe be improved.
-  # TODO: There might also be a bit of factoring I can do to try to simplify the children.
-  
-  # These things at the top are what you would be most likely to want to add to in subclasses.
-  
   # The filters have the form key => {:name => 'Display Name', :conditions => conditions clause for find}
-  # In the subclass, if you want to keep the 'All' filter, you can do the following
-  # def filters_available
-  #   super.merge!({
-  #     'ns' => {:name => 'Titles after H', :conditions => ["title > 'H'"]},
-  #   })
-  # end
   def filters_available
     {
       'all' => {:name => 'All', :conditions => nil},
@@ -47,17 +39,7 @@ class EditFrameCell < Apotomo::StatefulWidget
     nil
   end
 
-  # This should be a list of fields in the table that will be updated from the form fields
-  # def attributes_to_update
-  #   [:title, :author_id, :publisher_id]
-  # end
-  def attributes_to_update
-    [:name]
-  end
-  
-  # This is called in order to display the list.
-  # If something fancier is needed, this can be redefined (and then resources_include,
-  # resources_default_order will no longer be needed)
+  # This loads the records in order to display the list, uses parameters set above
   def load_records(conditions = nil)
     find_params = {:conditions => conditions}
     find_params.merge!({:include => resources_include}) if resources_include
@@ -65,65 +47,55 @@ class EditFrameCell < Apotomo::StatefulWidget
     @records = resource_model.find(:all, find_params)
   end
   
+  # This should be a list of fields in the table that will be updated from the form fields
+  # Format: [:title, :author_id, :publisher_id]
+  def attributes_to_update
+    []
+  end
+  
   # The set of things that reveal and hide themselves depending on demand.  Default is that all start and stay visible.
   # But if the detail panel starts hidden and should pop out, set, e.g., :detail => ['div_containing', false]
   def hud_panels
     {}
   end
-  
+    
   # These Javascript calls reveal and dismiss HUD panels.
   # They are collected together here in case something other than Prototype/Scriptalicious is desired
-  def js_reveal(element = 'div_' + self.name)
-    "Effect.SlideDown('#{element}', {duration: 0.3});"
+  def js_reveal(element = 'div_' + self.name, duration = 0.3, queue = nil)
+    queue_parm = queue ? ", queue: {position: '" + queue + "', scope: '" + element + "'}" : ''
+    "Effect.SlideDown('#{element}', {duration: #{duration}#{queue_parm}});"
   end
 
-  def js_dismiss(element = 'div_' + self.name)
-    "Effect.SlideUp('#{element}', {duration: 0.3});"
+  def js_dismiss(element = 'div_' + self.name, duration = 0.3, queue = nil)
+    queue_parm = queue ? ", queue: {position: '" + queue + "', scope: '" + element + "'}" : ''
+    "Effect.SlideUp('#{element}', {duration: #{duration}#{queue_parm}});"
   end
   
   # These are the standard transitions, but you can add to them by calling
   # super.merge!({:other => [:transitions]}).
   def transition_map
-    { :_frame_start => [:_frame],
-      :_list_start => [:_list],
-      :_list_select => [:_list],
-      :_list_dismiss => [:_list],
-      :_list => [:_list, :_list_start, :_list_reveal, :_list_dismiss],
-      :_detail_start => [:_detail],
-      :_delete => [:_detail],
-      :_edit => [:_detail],
-      :_show => [:_show_common],
-      :_show_from_parent => [:_show_common],
-      :_show_common => [:_detail],
-      :_new => [:_detail], 
-      :_update => [:_detail, :_show],
-      :_detail_dismiss => [:_detail],
-      :_parent_changed => [:_detail],
-      :_select => [:_detail],
-      :_detail => [:_detail, :_detail_start, :_edit, :_edit_direct, :_update, :_delete, :_new, :_show, :_show_from_parent,
-          :_detail_dismiss, :_parent_changed, :_select],
-      :_filter_start => [:_filter],
-      :_filter_update => [:_filter],
-      :_filter => [:_filter, :_filter_start, :_filter_update],
-      :_selected_start => [:_selected],
-      :_selected_update => [:_selected],
-      :_selected_change => [:_selected],
-      :_selected => [:_selected, :_selected_update, :_selected_change],
-      :_message_start => [:_message],
-      :_message => [:_message]
-    }
+    frame_transitions.merge(
+    list_panel_transitions.merge(
+    detail_panel_transitions.merge(
+    filter_panel_transitions.merge(
+    selected_panel_transitions.merge(
+    message_panel_transitions
+    )))))
   end
   
   
   # Containing frame states.
+    
+  def frame_transitions
+    {
+      :_frame_start => [:_frame],
+      :_frame => [:_frame, :_frame_start],
+    }
+  end
   
-  # frame_start makes filters_available, the resource, and the current filter available to all children
-  # The frame also keeps track of whether we are in edit mode or show mode
   def _frame_start
-    set_local_param(:filters_available, self.filters_available)
-    set_local_param(:current_filter, self.filter_default)
-    set_local_param(:hud_panels, hud_panels)
-    set_local_param(:editing, 'n')
+    @editing_mode = false
+    @hud_state = hud_panels
     jump_to_state :_frame
   end
   
@@ -133,13 +105,25 @@ class EditFrameCell < Apotomo::StatefulWidget
   
   
   # List panel states
+  # The list panel displays a recordset based on the currently selected filter
   
+  def list_panel_transitions
+    {
+      :_list_start => [:_list],
+      :_list_reveal => [:_list],
+      :_list_dismiss => [:_list],
+      :_list => [:_list, :_list_start, :_list_reveal, :_list_dismiss],
+    }
+  end
+
   def _list_start
     jump_to_state :_list
   end
   
   def _list
-    load_records(param(:filters_available)[param(:current_filter)][:conditions])
+    # Consult the filter panel to find what the current filter is, then load records accordingly
+    filter_panel = parent[parent.name + '_filter']
+    load_records(filter_panel.filters[filter_panel.filter][:conditions])
     nil
   end
   
@@ -154,227 +138,222 @@ class EditFrameCell < Apotomo::StatefulWidget
   end
   
   
+  # Selected panel states
+  # The selected panel is a specialized display panel used within a detail panel of a parent.
+  # When the parent calls load_record, the selected panel's :id_from_parent parameter is set.
+  # When a select link is clicked on a subordinate list, this passes (as :id) to _selected_change
+  
+  def selected_panel_transitions
+    {
+      :_selected_start => [:_selected],
+      :_selected_update => [:_selected],
+      :_selected_change => [:_selected_update],
+      :_selected => [:_selected, :_selected_start, :_selected_update, :_selected_change],
+    }
+  end
+
+  def _selected_start
+    @original = nil
+    jump_to_state :_selected_update
+  end
+  
+  def _selected
+    @dirty = (@original && @original.id != @record.id)
+    nil
+  end
+  
+  def _selected_update
+    load_record(@selected_id)
+    @original ||= @record
+    jump_to_state :_selected
+  end
+  
+  def _selected_change
+    @selected_id = param(:id)
+    jump_to_state :_selected_update
+  end
+    
+  
+  # Filter panel states
+  # The filter panel shows the filter options and current filter.
+  
+  def filter_panel_transitions
+    {
+      :_filter_start => [:_filter],
+      :_filter_update => [:_filter],
+      :_filter => [:_filter, :_filter_start, :_filter_update],
+    }
+  end
+  
+  def _filter_start
+    @filters = filters_available
+    @filter = filter_default
+    jump_to_state :_filter
+  end
+  
+  def _filter
+    nil
+  end
+    
+  def _filter_update
+    @filter = param(:new_filter) || filter_default
+    trigger(:filterChanged)
+    jump_to_state :_filter
+  end
+  
+  # Message panel states
+  # The message panel is just for showing result messages in a way that doesn't rely on any other panel being visible.
+  # The message is stored in the frame (using post_message below), and once displayed, it is erased.
+  
+  def message_panel_transitions
+    {
+      :_message_start => [:_message],
+      :_message => [:_message, :message_start],
+    }
+  end
+
+  def _message_start
+    @message = ''
+    jump_to_state :_message
+  end
+  
+  def _message
+    @message_to_display = @message
+    @message = ''
+    hud_reveal(:message, 0.3, 'front')
+    hud_dismiss(:message, 1.0, 'end')
+    nil
+  end
+
+
   # Detail panel states
-  # If param(:id) is set, it will show detail/editing for record :id
-  # The frame knows if we're editing (parent.param(:editing))
+  # The detail panel is the most complicated one, it handles the bulk of the action here.
+  # The frame holds the current id and whether we are in editing mode.
+  
+  def detail_panel_transitions
+    {
+      :_detail_start => [:_detail],
+      :_show => [:_detail],
+      :_edit => [:_detail],
+      :_update => [:_detail_dismiss, :_show],
+      :_new => [:_detail], 
+      :_delete => [:_detail],
+      :_detail_dismiss => [:_detail],
+      :_detail => [:_detail, :_detail_start, :_show, :_edit, :_update, :_new, :_delete, :_detail_dismiss],
+    }
+  end
   
   def _detail_start
-    @record = new_record
-    parent.set_local_param(:current_id, -1)
-    parent.set_local_param(:editing, 'n')
-    @editing = false
+    new_record
+    parent.editing_mode = false
     jump_to_state :_detail
   end
   
-  def _show_from_parent
-    @record = load_record(param(:id_from_parent))
-    jump_to_state :_show_common
+  def _detail
+    @editing = parent.editing_mode
+    nil
   end
   
   def _show
-    @record = load_record(param(:id))
-    jump_to_state :_show_common
+    load_record(param(:id))
+    hud_reveal(:detail)
+    parent.editing_mode = false
+    show_child_panels
+    jump_to_state :_detail
   end
   
-  def show_post
-  end
-    
-  def _show_common
-    parent.set_local_param(:current_id, @record.id)
-    hud_reveal(:detail)
-    parent.set_local_param(:editing, 'n')
-    show_post
-    jump_to_state :_detail
+  # Tell the child panels to move to their record matching the one specified by the just-shown parent
+  def show_child_panels
+    child_panels.each do |cp, field_id|
+      parent[cp][cp + '_detail'].set_local_param(:id, @record[field_id])
+      parent[cp][cp + '_detail'].trigger(:redraw)
+      parent[cp][cp + '_detail'].trigger(:dismissList)
+    end
   end
   
   def _edit
-    @record = load_record(param(:id))
-    parent.set_local_param(:current_id, @record.id)
+    load_record(parent.param(:id))
     hud_reveal(:detail)
-    parent.set_local_param(:direct, 'n')
-    parent.set_local_param(:editing, 'y')
-    edit_post
-    jump_to_state :_detail
-  end
-
-  def _edit_direct
-    parent.set_local_param(:direct, 'y')
-    parent.set_local_param(:editing, 'y')
-    edit_post
+    parent.editing_mode = true
+    @return_to_show = parent.param(:from_show)
+    edit_child_panels
     jump_to_state :_detail
   end
   
-  def edit_post  
+  def edit_child_panels  
+    child_panels.keys.each do |cp|
+      parent[cp][cp + '_detail'].trigger(:revealList)
+      parent[cp][cp + '_detail'].trigger(:dismissPanel)
+    end
+  end
+  
+  def _update
+    update_from_children
+    @record.update_attributes(self.update_attributes_hash)
+    @record.save
+    @record.reload
+    post_message "Changes saved."
+    trigger(:recordChanged)
+    jump_to_state :_show if @return_to_show
+    jump_to_state :_detail_dismiss
+  end
+
+  # When an update occurs, we need to fetch the values from the children
+  def update_from_children
+    child_panels.each do |cp, field_id|
+      @record[field_id] = self[cp + '_selected'].record.id
+    end
   end
   
   def _new
-    @record = new_record
-    parent.set_local_param(:current_id, -1)
+    new_record
     hud_reveal(:detail)
-    parent.set_local_param(:editing, 'y')
+    parent.editing_mode = true
     jump_to_state :_detail
   end
   
   def _delete
-    unless (@doomed = load_record(param(:id), false)).id.nil?
-      @doomed.destroy
-      # @msg = "Record deleted."
+    if (doomed = find_record(parent.param(:id)))
+      if doomed.id == @record.id
+        new_record
+        hud_dismiss(:detail)
+      end
+      doomed.destroy
       post_message "Record deleted."
       trigger(:recordChanged)
     end
     jump_to_state :_detail
   end
 
-  def _detail
-    @editing = (parent.param(:editing) == 'y')
-    nil
-  end
-    
-  def _update
-    @record.update_attributes(self.update_attributes_hash)
-    @record.save
-    @record.reload
-    post_message "Changes saved."
-    # @msg = "Changes saved."
-    trigger(:recordChanged)
-    if parent.param(:direct) == 'n'
-      hud_dismiss(:detail)
-      jump_to_state :_detail
-    else
-      jump_to_state :_show
-    end
-  end
-  
   def _detail_dismiss
     hud_dismiss(:detail)
     jump_to_state :_detail
   end
     
   
-  # Selected panel states
-  
-  def _selected_start
-    id_from_parent = param(:id_from_parent)
-    @selected = load_record(id_from_parent)
-    jump_to_state :_selected
-  end
-  
-  def _selected
-    nil
-  end
-  
-  def _selected_update
-    id_from_parent = param(:id_from_parent)
-    @selected = load_record(id_from_parent)
-    jump_to_state :_selected
-  end
-  
-  def _selected_change
-    id = param(:id)
-    @selected = load_record(id)
-    jump_to_state :_selected
-  end
-    
-  
-  # Filter panel states
-  
-  def _filter_start
-    jump_to_state :_filter
-  end
-  
-  def _filter
-    @filters_available = param(:filters_available)
-    @current_filter = param(:current_filter)
-    nil
-  end
-    
-  def _filter_update
-    parent.set_local_param(:current_filter, param(:new_filter) || self.filter_default)
-    trigger(:filterChanged)
-    jump_to_state :_filter
-  end
-  
-  
-  # Message panel states
-  
-  def _message_start
-    jump_to_state :_message
-  end
-  
-  def _message
-    @message = parent.param(:message)
-    parent.set_local_param(:message, nil)
-    nil
-  end
-  
   # Other helpers
   
-  def resource_model
-    Object.const_get param(:resource).classify
+  def find_record(id = nil)
+    resource_model.find_by_id(id)
   end
   
-  # def find_child(root, widget_id)
-  #   root.children.find_all do |w|
-  #     return w if w.name.to_s == widget_id.to_s
-  #   end
-  #   nil
-  # end
-  
-  def js_emit
-    js_emit = @js_emit || ''
-    @js_emit = ''
-    js_emit
+  def load_record(id = nil)
+    if @record = find_record(id)
+      load_child_selected_records
+    else
+      new_record
+    end
   end
 
-  def post_message(message = '')
-    parent.set_local_param(:message, message)
-    trigger(:postMessage)
-  end
-  
-  def msg_emit
-    msg_emit = @msg || ''
-    @msg = ''
-    msg_emit
-  end
-  
-  def set_js_emit(to_emit)
-    set_local_param(:js_emit, (local_param(:js_emit) || '') + to_emit)
-  end
-  
-  def get_js_emit
-    js_emit = local_param(:js_emit)
-    set_local_param(:js_emit, nil)
-    js_emit
-  end
-  
-  def hud_reveal(panel)
-    @js_emit ||= ''
-    if hud = param(:hud_panels)[panel]
-      unless hud[1]
-        @js_emit = @js_emit + js_reveal(hud[0])
-        hud[1] = true
-        parent.set_local_param(:hud_panels, param(:hud_panels).merge!({panel => hud}))
-      end
+  def load_child_selected_records
+    child_panels.each do |cp, id_field|
+      self[cp + '_selected'].selected_id = @record[id_field]
     end
-  end
-  
-  def hud_dismiss(panel)
-    @js_emit ||= ''
-    if hud = param(:hud_panels)[panel]
-      if hud[1]
-        @js_emit = @js_emit + js_dismiss(hud[0])
-        hud[1] = false
-        parent.set_local_param(:hud_panels, param(:hud_panels).merge!({panel => hud}))
-      end
-    end
-  end
-  
-  def load_record(id = nil, load_children = true)
-    resource_model.find_by_id(id) || resource_model.new
   end
 
   def new_record
-    resource_model.new
+    @record = resource_model.new
+    load_child_selected_records
   end
   
   def update_attributes_hash
@@ -384,7 +363,55 @@ class EditFrameCell < Apotomo::StatefulWidget
     end
     attrs
   end
+
+  def resource_model
+    Object.const_get param(:resource).classify
+  end
+    
+  def js_emit
+    js_emit = @js_emit || ''
+    @js_emit = ''
+    js_emit
+  end
+
+  def set_js_emit(to_emit)
+    set_local_param(:js_emit, (local_param(:js_emit) || '') + to_emit)
+  end
   
+  def get_js_emit
+    js_emit = local_param(:js_emit)
+    set_local_param(:js_emit, nil)
+    js_emit
+  end
+
+  def post_message(message = '')
+    parent[parent.name + '_message'].message = message
+    trigger(:messagePosted)
+  end
+    
+  # The HUD reveal and dismiss helpers will set up Javascript to hide or reveal certain panels.
+  # The state of each panel is remembered, so that re-revealing or re-dismissing won't do anything.
+  # The frame keeps track of the state of each panel, and they are assumed to be called by the child panels.
+  # If there is no entry for the panel in the HUD array, it will also do nothing.
+  
+  def hud_reveal(panel, duration = 0.3, queue = nil)
+    hud_control(panel, false, duration, queue)
+  end
+
+  def hud_dismiss(panel, duration = 0.3, queue = nil)
+    hud_control(panel, true, duration, queue)
+  end
+    
+  def hud_control(panel, dismiss = false, duration = 0.3, queue = nil)
+    @js_emit ||= ''
+    if hud = parent.hud_state[panel]
+      if hud[1] == dismiss
+        @js_emit = @js_emit + (dismiss ? js_dismiss(hud[0], duration, queue) : js_reveal(hud[0], duration, queue))
+        hud[1] = !dismiss
+        parent.hud_state.merge!({panel => hud})
+      end
+    end
+  end
 end
 
 

@@ -1,14 +1,7 @@
 class PublishersCell < EditFrameCell
-    
-  def transition_map
-    super.merge!({
-      :_change => [:_detail],
-      :_detail => super[:_detail] + [:_change],
-    })    
-  end
-
+  
   def filters_available
-    super.merge!({
+    super.merge({
       'nk' => {:name => 'Publishers after K', :conditions => ["name > 'K'"]}
     })
   end
@@ -22,14 +15,11 @@ class PublishersCell < EditFrameCell
   end
 
   def hud_panels
-    {
+    super.merge({
       :list => ['div_publisher_list_panels', true],
       :detail => ['div_publisher_detail', false],
-    }
-  end
-
-  def _parent_changed
-    super('publisher_filter')
+      :message => ['div_publisher_message', false],
+    })
   end
   
 end
