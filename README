@@ -7,3 +7,29 @@ git submodule update
 script/server
 
 Relies on Apotomo and Cells
+
+At some point I may break this out into a plugin of its own, since it is fairly general already.
+The bulk of the code is in app/cells/edit_frame_cell.rb and lib/edit_frame/edit_frame_widget_tree.rb
+Examples of how they are used come from:
+
+app/models/application_widget_tree.rb
+
+Parent widget:
+app/cells/books_cell.rb
+app/cells/books/_frame.html.erb
+app/cells/books/_detail.html.erb
+app/cells/books/_list.html.erb
+
+Subordinate widget:
+app/cells/authors_cell.rb
+app/cells/authors/_frame.html.erb
+app/cells/authors/_detail.html.erb
+app/cells/authors/_list.html.erb
+
+Common views:
+app/cells/edit_frame/_filter.html.erb
+app/cells/edit_frame/_selected.html.erb
+app/cells/edit_frame/_message.html.erb
+
+
+Note that I did this primarily by fiddling, trial-and-error, getting hints from the docs that exist, and deciphering what is actually going on inside apotomo and cells.  I may well be doing something "wrong" here and there, but I at least got it to a point where it appears to work.

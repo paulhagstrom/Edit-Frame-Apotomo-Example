@@ -5,6 +5,7 @@ class BooksController < ApplicationController
   layout "default"
   
   def index
+    # I'm not 100% sure why I had to do the draw call here, but doing it makes things work
     ApplicationWidgetTree.new.draw([])
     @content = render_widget('book')
   end
