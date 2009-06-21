@@ -309,6 +309,7 @@ class EditFrameCell < Apotomo::StatefulWidget
     new_record
     hud_reveal(:detail)
     parent.editing_mode = true
+    edit_child_panels
     jump_to_state :_detail
   end
   
