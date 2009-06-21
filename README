@@ -1,5 +1,10 @@
 At some point I will create a better README.
 
+I developed the plugin I've called edit_frame_widgets within this example app, but have now split it out into its own plugin.
+The example app still works, it now just pulls in the plugin instead.
+
+Here's how to make it go:
+
 git clone git://github.com/paulhagstrom/Edit-Frame-Apotomo-Example.git
 cd edit_frame_apotomo_example
 git submodule init
@@ -7,11 +12,9 @@ git submodule update
 rake db:migrate
 script/server
 
-Relies on Apotomo and Cells.  Uses a sqlite3 database, so it might be Mac-centric.
+Relies on Apotomo, Cells, and edit_frame_widgets.  Uses a sqlite3 database, so it might be Mac-centric.
 
-At some point I may break this out into a plugin of its own, since it is fairly general already.
-The bulk of the code is in app/cells/edit_frame_cell.rb and lib/edit_frame/edit_frame_widget_tree.rb
-Examples of how they are used come from:
+The edit_frame_widgets generator will create most of this still, but have a look at:
 
 app/models/application_widget_tree.rb
 
