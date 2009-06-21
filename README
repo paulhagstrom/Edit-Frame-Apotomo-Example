@@ -1,6 +1,6 @@
 At some point I will create a better README.
 
-git clone git://github.com/paulhagstrom/edit_frame_apotomo_example.git
+git clone git://github.com/paulhagstrom/Edit-Frame-Apotomo-Example.git
 cd edit_frame_apotomo_example
 git submodule init
 git submodule update
