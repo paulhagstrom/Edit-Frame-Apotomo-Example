@@ -9,12 +9,16 @@ http://apotomo.de/
 
 http://cells.rubyforge.org/
 
+There is a generator, probably the easiest way to see how it works
 
+For more information:
+
+script/generate edit_frame_widgets
 
 Example
 =======
 
-Example goes here.
+script/generate edit_frame_widgets
 
 
 Copyright (c) 2009 Paul Hagstrom, released under the MIT license
