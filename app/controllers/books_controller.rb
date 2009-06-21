@@ -1,7 +1,7 @@
 class BooksController < ApplicationController
   include Apotomo::ControllerMethods
   include Apotomo::WidgetShortcuts
-  
+
   layout "default"
   
   def index

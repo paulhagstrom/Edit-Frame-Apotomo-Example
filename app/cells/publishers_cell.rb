@@ -1,4 +1,4 @@
-class PublishersCell < EditFrameCell
+class PublishersCell < EditFrameWidgetsCell
   
   def filters_available
     super.merge({

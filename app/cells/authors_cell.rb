@@ -1,4 +1,4 @@
-class AuthorsCell < EditFrameCell
+class AuthorsCell < EditFrameWidgetsCell
   
   def filters_available
     super.merge({

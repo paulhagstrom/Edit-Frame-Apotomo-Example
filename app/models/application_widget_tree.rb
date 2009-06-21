@@ -1,5 +1,8 @@
 class ApplicationWidgetTree < Apotomo::WidgetTree
-  include EditFrame::EditFrameWidgetTree
+  # include EditFrame::EditFrameWidgetTree
+  # include EditFrameWidgets::EditFrameWidgetsTree
+  include EditFrameWidgetsTree
+  include EditFrameWidgets
   
   # This is an attempt to create a list/edit/filter widget with two such widgets within
   # Here, the book is the outermost widget, and it contains within it author and publisher widgets

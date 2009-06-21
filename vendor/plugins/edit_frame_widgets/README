@@ -1,0 +1,20 @@
+EditFrameWidgets
+================
+
+Wires up cells/widgets into a detail/filter/list panel that allows editable lookup tables.
+
+Relies on Apotomo and Cells:
+
+http://apotomo.de/
+
+http://cells.rubyforge.org/
+
+
+
+Example
+=======
+
+Example goes here.
+
+
+Copyright (c) 2009 Paul Hagstrom, released under the MIT license
