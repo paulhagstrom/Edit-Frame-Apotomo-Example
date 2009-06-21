@@ -1,4 +1,10 @@
 module EditFrameWidgetsTree
+  # Right now, I just include this in application_widget_tree like so:
+  # include EditFrameWidgetsTree
+  # include EditFrameWidgets
+  # Presumably I could extend Apotomo::WidgetTree somehow so that the inclusion wouldn't be necessary.
+  # I don't know how plugins work.
+  # I don't even really know why I need both includes above, if I do.  But if I have them, it works.
   
   # This embeds a child_frame as a child of the parent_frame, and wires them together
   def embed_frame(parent_frame, child_frame)

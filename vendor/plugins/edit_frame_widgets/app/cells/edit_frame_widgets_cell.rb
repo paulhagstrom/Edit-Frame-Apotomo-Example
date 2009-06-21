@@ -1,4 +1,7 @@
-  
+# I don't completely understand why this is not in a module.
+# If I put it in a module, things go haywire.
+# I need to figure out how plugins work.  And how Ruby works, for that matter.
+
   class EditFrameWidgetsCell < Apotomo::StatefulWidget
     include Apotomo::EventAware
     helper_method :js_emit
