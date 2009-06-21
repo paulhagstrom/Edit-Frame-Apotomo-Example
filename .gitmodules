@@ -4,3 +4,6 @@
 [submodule "vendor/plugins/apotomo"]
 	path = vendor/plugins/apotomo
 	url = git://github.com/apotonick/apotomo.git
+[submodule "vendor/plugins/edit_frame_widgets"]
+	path = vendor/plugins/edit_frame_widgets
+	url = git://github.com/paulhagstrom/edit_frame_widgets.git
