@@ -6,7 +6,7 @@ The example app still works, it now just pulls in the plugin instead.
 Here's how to make it go:
 
 git clone git://github.com/paulhagstrom/Edit-Frame-Apotomo-Example.git
-cd edit_frame_apotomo_example
+cd Edit-Frame-Apotomo-Example
 git submodule init
 git submodule update
 rake db:migrate
