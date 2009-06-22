@@ -1,4 +1,5 @@
 class PublishersCell < EditFrameWidgetsCell
+  include EditFrameWidgetsJquery
   
   def filters_available
     super.merge({
