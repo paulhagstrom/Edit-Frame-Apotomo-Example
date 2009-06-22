@@ -1,5 +1,5 @@
 <!-- It's bad form to have delete be a clickable link, fix that someday -->
-<table>
+<table id="publisher_table">
 	<tr>
 		<th>Name</th>
 		<th>Edit</th>
@@ -15,4 +15,5 @@
 	</tr>
 	<% end %>
 </table>
+<%= javascript_tag "jQuery('#publisher_table').colorize() ;"%>
 <%= javascript_tag js_emit %>
