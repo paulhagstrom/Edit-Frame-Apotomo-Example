@@ -1,19 +1,56 @@
 <!-- It's bad form to have delete be a clickable link, fix that someday -->
-<table id="publisher_table">
-	<tr>
-		<th>Name</th>
-		<th>Edit</th>
-		<th>Select</th>
-		<th>Delete</th>
-	</tr>
-	<% for record in @records do %>
-	<tr>
-		<td><%=h record.name %></td>
-		<td><%= link_to_event("Edit", {:type => :editClick, :id => record.id}) %></td>
-		<td><%= link_to_event("Select", {:type => :selectClick, :id => record.id}) %></td>
-		<td><%= link_to_event("Delete", {:type => :delClick, :id => record.id}) %></td>
-	</tr>
-	<% end %>
+<%
+js_jqgrid_data = ''
+for record in @records do
+	edit_link = escape_javascript(link_to_event("Edit", {:type => :editClick, :id => record.id}))
+	sel_link = escape_javascript(link_to_event("Select", {:type => :selectClick, :id => record.id}))
+	del_link = escape_javascript(link_to_event("Delete", {:type => :delClick, :id => record.id}))
+	js_jqgrid_data = js_jqgrid_data +
+		"{id:'#{record.id}', name:'#{record.name}',edit:'#{edit_link}',select:'#{sel_link}',delete:'#{del_link}'},"
+end
+js_jqgrid_data = js_jqgrid_data[0..-2] if @records.size > 0
+js_jqgrid = <<-JS
+jQuery(document).ready(function(){
+	jQuery("#jqgized_publisher_table").jqGrid({
+		datatype: "local",
+		height: 250,
+	   	colNames:['Name' ,'edit', 'select', 'delete'],
+	   	colModel:[
+	   		{name:'name',index:'name', width:250},
+	   		{name:'edit',index:'edit', width:50, sortable:false},
+	   		{name:'select',index:'select', width:70, sortable:false},
+	   		{name:'delete',index:'delete', width:70, sortable:false}
+	   	],
+		imgpath: 'stylesheets/sunny/images',
+	   	caption: 'Publishers',
+//		pager: 'jqgized_publisher_pager',
+		toolbar: [true, 'top'],
+//		hiddengrid: true,
+		sortname: 'name',
+// Make double click send select event
+// cf. method from http://henrik.nyh.se/2008/05/rails-authenticity-token-with-jquery
+		ondblClickRow: function(rowid) {
+			new Ajax.Request('/books/render_event_response/' + rowid + '?apotomo_action=event&source=publisher_list&type=selectClick', {asynchronous:true, evalScripts:true, parameters:'authenticity_token=' + encodeURIComponent(AUTH_TOKEN) }); return false;
+		}
+	});
+	var mydata = [#{js_jqgrid_data}];
+	for(var i=0;i<mydata.length;i++)
+		jQuery("#jqgized_publisher_table").addRowData(mydata[i].id,mydata[i]);
+//	jQuery("#t_jqgized_publisher_table").height(25).hide().filterGrid("jqgized_publisher_table",{gridModel:true,gridToolbar:true});
+//	jQuery('#jqgized_publisher_table').navGrid('#jqgized_publisher_pager',{});
+/*	jQuery("#jqgized_publisher_table").navGrid('#jqgized_publisher_pager',{edit:false,add:false,del:false,search:false,refresh:false}).navButtonAdd("#jqgized_publisher_pager",{caption:"Search",title:"Toggle Search", onClickButton:function(){
+		if(jQuery("#t_jqgized_publisher_table").css("display")=="none") {
+			jQuery("#t_jqgized_publisher_table").css("display","");
+		} else {
+			jQuery("#t_jqgized_publisher_table").css("display","none");
+		} } });
+*/
+});
+JS
+%>
+<table id="jqgized_publisher_table" class="scroll" cellpadding="0" cellspacing="0">
 </table>
-<%= javascript_tag "jQuery('#publisher_table').colorize() ;"%>
+<!-- <div id="jqgized_publisher_pager" class="scroll"></div> -->
+<%= javascript_tag js_jqgrid %>
+
 <%= javascript_tag js_emit %>
